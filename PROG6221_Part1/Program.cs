@@ -17,6 +17,11 @@ namespace PROG6221_Part1
             // Play the voice greeting and display the ASCII art
             PlayVoice();
             DisplayAscii();
+
+            // Create an instance of the ChatBot class and start the conversation
+            ChatBot chatBot = new ChatBot();
+            chatBot.Conversation();
+
         }
         // Method to play a welcome audio message
         static void PlayVoice()
@@ -26,8 +31,10 @@ namespace PROG6221_Part1
                 // Load and play the sound file from the Assets folder
                 using (SoundPlayer player = new SoundPlayer("Assets/greeting.wav"))
                 {
-                    player.Load(); // Load the sound file      
-                    player.PlaySync();  // Plays audio and waits until it finishes  
+                    // Load the sound file  
+                    player.Load();
+                    // Plays audio and waits until it finishes 
+                    player.PlaySync();   
                 }
             }
             catch (Exception ex)
