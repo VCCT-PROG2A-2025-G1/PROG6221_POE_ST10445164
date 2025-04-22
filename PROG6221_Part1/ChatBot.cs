@@ -1,4 +1,11 @@
-﻿using System;
+﻿// Samuel Sossen
+// ST10445164
+// Group 1
+
+// Reference:
+// https://copilot.microsoft.com/chats/7bpPFQBmHtPLdFNcEuYrd
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -49,27 +56,33 @@ namespace PROG6221_Part1
                 // Handles user input
                 switch (Userinput)
                 {
-                    case string s when s.Contains("exit"):
-                        PrintWithTextDelay("Stay safe online. Goodbye!");
+                    case string inputs when inputs.Contains("exit"):
+                        PrintWithTextDelay($"Stay safe online {Username}. Goodbye!");
                         continueChat = false;
                         break;
-                    case string s when s.Contains("how are you"):
+                    case string inputs when inputs.Contains("how are you"):
                         PrintWithTextDelay("I'm only code, but I'm functioning perfectly Thanks!");
                         break;
-                    case string s when s.Contains("purpose"):
-                        PrintWithTextDelay("I'm here to help you learn how to protect yourself online.");
+                    case string inputs when inputs.Contains("purpose"):
+                        PrintWithTextDelay($"I'm here to help you {Username} to learn how to protect yourself online.");
                         break;
-                    case string s when s.Contains("password"):
-                        PrintWithTextDelay("Make use of complicated passwords that combine symbols, numbers, and letters.");
+                    case string inputs when inputs.Contains("password"):
+                        PrintWithTextDelay("You must make use of complicated passwords that combine symbols, numbers, and letters.");
                         break;
-                    case string s when s.Contains("phishing"):
+                    case string inputs when inputs.Contains("phishing"):
                         PrintWithTextDelay("Steer clear of links from senders you don't know. Always make sure to check the URL.");
                         break;
-                    case string s when s.Contains("browsing"):
+                    case string inputs when inputs.Contains("browsing"):
                         PrintWithTextDelay("Make sure websites use HTTPS and avoid suspicious popups.");
                         break;
-                    case string s when s.Contains("what can i ask"):
-                        PrintWithTextDelay("You can ask about password safety, phishing, and safe browsing tips.");
+                    case string inputs when inputs.Contains("what can i ask"):
+                        PrintWithTextDelay($"{Username} you can ask about password safety, phishing, What is Two-Factor Authetication (2fa), VPN's, and safe browsing tips.");
+                        break;
+                    case string inputs when inputs.Contains("2fa") || inputs.Contains("two-factor"):
+                        PrintWithTextDelay("Two-factor authentication adds a second layer of security to your account, usually by sending a code to your phone.");
+                        break;
+                    case string inputs when inputs.Contains("vpn"):
+                        PrintWithTextDelay("A VPN (Virtual Private Network) encrypts your internet connection to protect your data and privacy.");
                         break;
                     default:
                         PrintWithTextDelay("I did not understand that. Could you rephrase?");
@@ -92,5 +105,6 @@ namespace PROG6221_Part1
         }
     }
 }
+//-----------------------------------------------END OF FILE------------------------------------------------
 
 

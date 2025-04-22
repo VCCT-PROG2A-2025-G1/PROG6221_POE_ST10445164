@@ -1,4 +1,11 @@
-﻿using System;
+﻿// Samuel Sossen
+// ST10445164
+// Group 1
+
+// Reference:
+// https://copilot.microsoft.com/chats/7bpPFQBmHtPLdFNcEuYrd
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -62,3 +69,4 @@ namespace PROG6221_Part1
     }
 
 }
+//-----------------------------------------END OF FILE-----------------------------------------
