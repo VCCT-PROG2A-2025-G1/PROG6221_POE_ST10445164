@@ -81,7 +81,7 @@ namespace PROG6221_Part1
                     continue;
                 }
                 // Checks for the user interest in a topic
-                if (Userinput.Contains("interested in"))
+                if (Userinput.Contains("interested in")|| Userinput.Contains("favourite topic"))
                 {
                     int index = Userinput.IndexOf("interested in");
                     string topic = Userinput.Substring(index + 13).Trim().TrimEnd('.', '!', '?');
@@ -108,7 +108,7 @@ namespace PROG6221_Part1
                         // Memory feature for a topic
                         if (UserTopic.Contains(keyword))
                         {
-                            PrintWithTextDelay($"As someone interested in {keyword}, you might want to review the security settings on your accounts.");
+                            PrintWithTextDelay($"As someone interested in {keyword}, it is important to take proactive steps to secure your online presence.");
                         }
                         goto ContinueLoop;
                     }
@@ -167,7 +167,7 @@ namespace PROG6221_Part1
                         if (UserTopic.Count > 0)
                         {
                             string allTopics = string.Join(", ", UserTopic);
-                            PrintWithTextDelay($"You've mentioned you're interested in: {allTopics}.");
+                            PrintWithTextDelay($"You have mentioned that you are interested in: {allTopics}.");
                         }
                         else
                         {
