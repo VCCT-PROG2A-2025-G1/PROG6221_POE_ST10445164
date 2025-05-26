@@ -113,7 +113,6 @@ namespace PROG6221_Part1
                         goto ContinueLoop;
                     }
                 }
-
                 // Handles user input
                 switch (Userinput)
                 {
@@ -130,14 +129,10 @@ namespace PROG6221_Part1
                         }
                         break;
                     // Part 2 Sentiment Detection
-                    case string inputs when inputs.Contains("worried"):
-                        PrintWithTextDelay("It's okay to feel worried. Cyber threats can be scary, but I'm here to help.");
-                        break;
-                    case string inputs when inputs.Contains("frustrated"):
-                        PrintWithTextDelay("I'm sorry you're feeling frustrated. Let’s go step-by-step to stay safe online.");
-                        break;
-                    case string inputs when inputs.Contains("curious"):
-                        PrintWithTextDelay("Curiosity is great! Ask me anything about staying safe online.");
+                    case string inputs when inputs.Contains("worried") || inputs.Contains("anxious") || inputs.Contains("concerned") || inputs.Contains("uneasy") || inputs.Contains("nervous")
+                      || inputs.Contains("frustrated") || inputs.Contains("annoyed") || inputs.Contains("irritated") || inputs.Contains("upset") || inputs.Contains("discouraged")
+                      || inputs.Contains("curious") || inputs.Contains("interested") || inputs.Contains("inquiring") || inputs.Contains("wondering") || inputs.Contains("intrigued"):
+                        HandleSentimentalWords(Userinput);
                         break;
                     // Part 1 Keyword Detection
                     case string inputs when inputs.Contains("exit"):
@@ -194,6 +189,35 @@ namespace PROG6221_Part1
             // Moves to the next line after the message is printed
             Console.WriteLine(); 
         }
+        // Handles sentiment detection based on user input.
+        private void HandleSentimentalWords(string input)
+        {
+            string[] worriedWords = { "worried", "anxious", "concerned", "uneasy", "nervous" };
+            string[] frustratedWords = { "frustrated", "annoyed", "irritated", "upset", "discouraged" };
+            string[] curiousWords = { "curious", "questioning", "inquiring", "wondering", "intrigued" };
+
+            string detectedWord = worriedWords.FirstOrDefault(word => input.Contains(word));
+            if (detectedWord != null)
+            {
+                PrintWithTextDelay($"It's okay to feel {detectedWord}. Cyber threats can be scary, but I'm here to help.");
+                return;
+            }
+
+            detectedWord = frustratedWords.FirstOrDefault(word => input.Contains(word));
+            if (detectedWord != null)
+            {
+                PrintWithTextDelay($"I'm sorry you're feeling {detectedWord}. Let’s go step-by-step to stay safe online.");
+                return;
+            }
+
+            detectedWord = curiousWords.FirstOrDefault(word => input.Contains(word));
+            if (detectedWord != null)
+            {
+                PrintWithTextDelay($"I love that you're {detectedWord}! Ask me anything about staying safe online.");
+                return;
+            }
+        }
+
     }
 }
 //-----------------------------------------------END OF FILE------------------------------------------------
