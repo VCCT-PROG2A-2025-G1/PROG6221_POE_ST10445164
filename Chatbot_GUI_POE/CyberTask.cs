@@ -14,8 +14,8 @@ namespace Chatbot_GUI_POE
 
         public override string ToString()
         {
-            return $"{Title} – {Description}" +
-                   (ReminderDate != null ? $" (Remind on {ReminderDate.Value.ToShortDateString()})" : "");
+            return $"{Title}" + (ReminderDate != null ? $" (Remind on {ReminderDate:yyyy-MM-dd})" : "");
         }
+
     }
 }

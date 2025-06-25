@@ -21,13 +21,16 @@
                    HorizontalAlignment="Center"/>
 
         <!-- Chat Output -->
-        <ScrollViewer Grid.Row="1" Margin="0,0,0,10" VerticalScrollBarVisibility="Auto">
-            <TextBlock Name="ChatOutput"
-                       TextWrapping="Wrap"
-                       Foreground="White"
-                       FontSize="16"
-                       Background="White"/>
-        </ScrollViewer>
+        <TextBox Name="ChatOutput"
+         Grid.Row="1"
+         Margin="0,0,0,10"
+         FontSize="16"
+         TextWrapping="Wrap"
+         Background="White"
+         Foreground="Black"
+         IsReadOnly="True"
+         VerticalScrollBarVisibility="Auto"
+         BorderThickness="0"/>
 
         <!-- Input & Button -->
         <StackPanel Grid.Row="2" Orientation="Horizontal">
