@@ -1,0 +1,26 @@
+﻿<Window x:Class="Chatbot_GUI_POE.QuizWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Cybersecurity Quiz"
+        Height="400" Width="600"
+        Background="LightSeaGreen">
+
+    <StackPanel Margin="20">
+
+        <TextBlock x:Name="QuizQuestionText"
+                   FontSize="18"
+                   FontWeight="Bold"
+                   Foreground="White"
+                   Margin="0,0,0,20"
+                   TextWrapping="Wrap"/>
+
+        <StackPanel Margin="0,0,0,10">
+            <Button Content="A" Tag="a" Click="AnswerButton_Click" Margin="0,5"/>
+            <Button Content="B" Tag="b" Click="AnswerButton_Click" Margin="0,5"/>
+            <Button Content="C" Tag="c" Click="AnswerButton_Click" Margin="0,5"/>
+            <Button Content="D" Tag="d" Click="AnswerButton_Click" Margin="0,5"/>
+        </StackPanel>
+
+        <Button Content="Exit Quiz" Click="ExitQuiz_Click" Margin="0,20,0,0"/>
+    </StackPanel>
+</Window>

@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Cybersecurity Chatbot"
-        Height="600" Width="800"
+        Height="650" Width="900"
         Background="LightSeaGreen">
 
     <Grid Margin="10">
@@ -13,27 +13,30 @@
         </Grid.RowDefinitions>
 
         <!-- Title -->
-        <TextBlock Text="Cybersecurity Awareness Chatbot"
+        <TextBlock Grid.Row="0"
+                   Text="Cybersecurity Awareness Chatbot"
                    FontSize="24"
                    FontWeight="Bold"
                    Foreground="White"
-                   Margin="0,0,0,10"
-                   HorizontalAlignment="Center"/>
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,10"/>
 
         <!-- Chat Output -->
-        <TextBox Name="ChatOutput"
-         Grid.Row="1"
-         Margin="0,0,0,10"
-         FontSize="16"
-         TextWrapping="Wrap"
-         Background="White"
-         Foreground="Black"
-         IsReadOnly="True"
-         VerticalScrollBarVisibility="Auto"
-         BorderThickness="0"/>
+        <TextBox Grid.Row="1"
+                 Name="ChatOutput"
+                 FontSize="16"
+                 TextWrapping="Wrap"
+                 Background="White"
+                 Foreground="Black"
+                 IsReadOnly="True"
+                 VerticalScrollBarVisibility="Auto"
+                 BorderThickness="0"
+                 Margin="0,0,0,10"/>
 
-        <!-- Input & Button -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal">
+        <!-- Input and Send Button -->
+        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Left">
             <TextBox Name="UserInput"
                      Width="600"
                      FontSize="16"
@@ -42,8 +45,8 @@
                      BorderBrush="LightSeaGreen"
                      Margin="0,0,10,0"/>
             <Button Content="Send"
-                    Width="161"
-                    Height="26"
+                    Width="120"
+                    Height="30"
                     Background="White"
                     Foreground="Black"
                     FontWeight="Bold"

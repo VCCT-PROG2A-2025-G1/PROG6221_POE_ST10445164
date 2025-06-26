@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using PROG6221_Part1;
@@ -14,10 +15,8 @@ namespace Chatbot_GUI_POE
         private List<string> userTopics = new List<string>();
         private string lastTopic = "";
         private Dictionary<string, List<string>> keywordResponses;
-        private List<QuizQuestion> quizQuestions = new List<QuizQuestion>();
-        private int currentQuestionIndex = 0;
-        private int quizScore = 0;
-        private bool quizActive = false;
+        private NLPProcessor nlpProcessor = new NLPProcessor();
+        private CyberTask lastCreatedTask = null;
         private string username = "User";
 
         public MainWindow()
@@ -53,24 +52,175 @@ namespace Chatbot_GUI_POE
 
         private void Send_Click(object sender, RoutedEventArgs e)
         {
-            string userInput = UserInput.Text.Trim().ToLower(); 
+            string userInput = UserInput.Text.Trim();
 
-            if (string.IsNullOrWhiteSpace(userInput))
+            if (string.IsNullOrEmpty(userInput))
                 return;
 
-            AppendToChat($"You: {userInput}"); 
-            UserInput.Clear(); 
+            AppendToChat($"You: {userInput}");
+            UserInput.Clear();
 
-            string botResponse = GetBotResponse(userInput); 
-            AppendToChat($"Bot: {botResponse}"); 
+            string lowerInput = userInput.ToLower();
+
+            // --- Activity log command detection ---
+            if (lowerInput.Contains("show activity log")
+                || lowerInput.Contains("what have you done")
+                || lowerInput.Contains("recent actions"))
+            {
+                int total = ChatbotState.ActivityLog.Count;
+                if (total == 0)
+                {
+                    AppendToChat("Bot: No recent activities yet.");
+                }
+                else
+                {
+                    int showCount = Math.Min(10, total);
+                    // Workaround for no TakeLast in older .NET:
+                    var logEntries = ChatbotState.ActivityLog.Skip(total - showCount).ToList();
+
+                    StringBuilder sb = new StringBuilder("Here’s a summary of recent actions:\n");
+                    for (int i = 0; i < logEntries.Count; i++)
+                        sb.AppendLine($"{i + 1}. {logEntries[i]}");
+
+                    AppendToChat("Bot: " + sb.ToString());
+                }
+                return;  // Early exit after showing log
+            }
+
+            // --- Reminder follow-up (e.g., "remind me in 3 days") ---
+            if (lastCreatedTask != null && lowerInput.Contains("remind me in"))
+            {
+                var parts = lowerInput.Split(new[] { "remind me in" }, StringSplitOptions.None);
+
+                if (parts.Length > 1)
+                {
+                    var words = parts[1].Trim().Split(' ');
+                    if (int.TryParse(words[0], out int days))
+                    {
+                        lastCreatedTask.ReminderDate = DateTime.Today.AddDays(days);
+                        string logEntry = $"[{DateTime.Now:HH:mm}] Reminder set for '{lastCreatedTask.Title}' in {days} days.";
+                        ChatbotState.ActivityLog.Add(logEntry);
+                        AppendToChat($"Bot: Got it! I'll remind you in {days} days.");
+                        return;
+                    }
+                }
+            }
+
+            // --- NLP Intent detection ---
+            UserIntent intent = nlpProcessor.DetectIntent(userInput);
+            string response = "";
+
+            switch (intent)
+            {
+                case UserIntent.AddReminder:
+                    {
+                        string desc = nlpProcessor.ExtractDescription(userInput, intent);
+                        DateTime reminderDate = DateTime.Today.AddDays(1);
+
+                        var newTask = new CyberTask
+                        {
+                            Title = desc,
+                            Description = GenerateDescriptionFromTitle(desc),
+                            ReminderDate = reminderDate
+                        };
+
+                        ChatbotState.TaskList.Add(newTask);
+                        ChatbotState.ActivityLog.Add($"[{DateTime.Now:HH:mm}] Reminder set for '{desc}' on {reminderDate:yyyy-MM-dd}.");
+                        lastCreatedTask = newTask;
+
+                        response = $"Reminder set for '{desc}' on {reminderDate:yyyy-MM-dd}.";
+                        break;
+                    }
+
+                case UserIntent.AddTask:
+                    {
+                        string desc = nlpProcessor.ExtractDescription(userInput, intent);
+
+                        var newTask = new CyberTask
+                        {
+                            Title = desc,
+                            Description = GenerateDescriptionFromTitle(desc),
+                            ReminderDate = null
+                        };
+
+                        ChatbotState.TaskList.Add(newTask);
+                        ChatbotState.ActivityLog.Add($"[{DateTime.Now:HH:mm}] Task added: '{desc}' (no reminder set).");
+                        lastCreatedTask = newTask;
+
+                        response = $"Task added with the description \"{newTask.Description}\". Would you like a reminder?";
+                        break;
+                    }
+
+                case UserIntent.GetSummary:
+                    {
+                        if (ChatbotState.ActivityLog.Count == 0)
+                        {
+                            response = "No actions recorded yet.";
+                        }
+                        else
+                        {
+                            int total = ChatbotState.ActivityLog.Count;
+                            int showCount = Math.Min(10, total);
+                            var logEntries = ChatbotState.ActivityLog.Skip(total - showCount).ToList();
+
+                            StringBuilder sb = new StringBuilder("Here’s a summary of recent actions:\n");
+                            for (int i = 0; i < logEntries.Count; i++)
+                            {
+                                sb.AppendLine($"{i + 1}. {logEntries[i]}");
+                            }
+                            response = sb.ToString();
+                        }
+                        break;
+                    }
+
+                case UserIntent.StartQuiz:
+                    {
+                        QuizWindow quizWindow = new QuizWindow();
+                        quizWindow.ShowDialog();
+
+                        if (ChatbotState.LastQuizScore >= 0)
+                        {
+                            ChatbotState.ActivityLog.Add($"[{DateTime.Now:HH:mm}] Quiz started – {ChatbotState.LastQuizTotal} questions answered.");
+                            ChatbotState.ActivityLog.Add($"[{DateTime.Now:HH:mm}] Quiz completed – {ChatbotState.LastQuizScore}/{ChatbotState.LastQuizTotal} correct.");
+
+                            response = $"You completed the quiz and scored {ChatbotState.LastQuizScore}/{ChatbotState.LastQuizTotal}.";
+                        }
+                        else
+                        {
+                            response = "You exited the quiz before completing it.";
+                        }
+                        break;
+                    }
+
+                default:
+                    {
+                        response = GetBotResponse(userInput.ToLower());
+                        break;
+                    }
+            }
+
+            AppendToChat($"Bot: {response}");
         }
 
+        private string GenerateDescriptionFromTitle(string title)
+        {
+            if (title.ToLower().Contains("privacy"))
+                return "Review your account privacy settings to ensure your data is protected.";
+            if (title.ToLower().Contains("2fa") || title.ToLower().Contains("two-factor"))
+                return "Enable two-factor authentication to secure your accounts.";
+            if (title.ToLower().Contains("password"))
+                return "Update your passwords using strong, unique combinations.";
+            if (title.ToLower().Contains("phishing"))
+                return "Learn how to detect and avoid phishing scams.";
+
+            // Fallback description
+            return $"This task is to {title.ToLower()}. Make sure it improves your cybersecurity.";
+        }
 
         private void AppendToChat(string message)
         {
             ChatOutput.Text += message + Environment.NewLine;
         }
-
 
         private string GetBotResponse(string input)
         {
@@ -94,14 +244,12 @@ namespace Chatbot_GUI_POE
                 return logOutput.Trim();
             }
 
-            // Step 3: Task Assistant - Add Task
+            // Task Assistant - Add Task
             if (input.StartsWith("add task"))
             {
-                // Attempt to extract date
                 DateTime? reminderDate = null;
                 string raw = input.Replace("add task", "").Trim();
 
-                // Try to find a date pattern (e.g., "on 2025-07-01")
                 int dateIndex = raw.LastIndexOf(" on ");
                 string taskTitle = raw;
 
@@ -131,22 +279,19 @@ namespace Chatbot_GUI_POE
                 };
 
                 taskList.Add(newTask);
-                
 
-                // Add to activity log
                 string logEntry = $"Task added: '{taskTitle}'";
                 if (reminderDate != null)
                     logEntry += $" (Reminder set for {reminderDate:yyyy-MM-dd})";
 
                 activityLog.Add(logEntry);
 
-                if (reminderDate != null)
-                    return $"Task added: {taskTitle} with a reminder on {reminderDate:yyyy-MM-dd}.";
-                else
-                    return $"Task added: {taskTitle}. You can optionally set a date using 'on YYYY-MM-DD'.";
+                return reminderDate != null
+                    ? $"Task added: {taskTitle} with a reminder on {reminderDate:yyyy-MM-dd}."
+                    : $"Task added: {taskTitle}. You can optionally set a date using 'on YYYY-MM-DD'.";
             }
 
-            // Step 3: Task Assistant - Show Tasks
+            // Task Assistant - Show Tasks
             if (input == "show tasks")
             {
                 if (taskList.Count == 0)
@@ -197,167 +342,30 @@ namespace Chatbot_GUI_POE
                 return "Can you please clarify what you'd like me to explain?";
             }
 
-            // Quiz Feature Part 3
-            if (quizActive)
+            // Launch QuizWindow
+            if (input == "start quiz")
             {
-                if (input.Length == 1 && "abc".Contains(input))
+                QuizWindow quizWindow = new QuizWindow();
+                quizWindow.ShowDialog();
+
+                if (ChatbotState.LastQuizScore >= 0)
                 {
-                    char userAnswer = input[0];
-                    var currentQuestion = quizQuestions[currentQuestionIndex];
+                    activityLog.Add($"Quiz started – {ChatbotState.LastQuizTotal} questions answered.");
+                    activityLog.Add($"Quiz completed – {ChatbotState.LastQuizScore}/{ChatbotState.LastQuizTotal} correct.");
 
-                    string feedback = userAnswer == currentQuestion.CorrectAnswer
-                        ? "Correct!" : $"Incorrect. The correct answer was '{currentQuestion.CorrectAnswer}'.";
-
-                    if (userAnswer == currentQuestion.CorrectAnswer)
-                        quizScore++;
-
-                    currentQuestionIndex++;
-
-                    if (currentQuestionIndex < quizQuestions.Count)
-                    {
-                        var next = quizQuestions[currentQuestionIndex];
-                        return $"{feedback}\n\nQuestion {currentQuestionIndex + 1}: {next.Question}\n{string.Join("\n", next.Options)}";
-                    }
-                    else
-                    {
-                        quizActive = false;
-                        activityLog.Add($"Quiz completed - {quizScore}/{quizQuestions.Count} correct.");
-                        return $"{feedback}\n\n🎉 Quiz complete! Your score: {quizScore}/{quizQuestions.Count}";
-                    }
+                    string summary = $"You completed the quiz and scored {ChatbotState.LastQuizScore}/{ChatbotState.LastQuizTotal}.";
+                    return summary;
                 }
                 else
                 {
-                    return "Please answer with 'a', 'b', or 'c'.";
+                    return "You exited the quiz before completing it.";
                 }
-            }
-
-            // Start quiz trigger
-            if (input == "start quiz")
-            {
-                InitializeQuiz();
-                var q = quizQuestions[0];
-                return $"🧠 Starting Cybersecurity Quiz!\n\nQuestion 1: {q.Question}\n{string.Join("\n", q.Options)}";
             }
 
             // Default Response
             return "I didn't quite get that. Can you rephrase?";
         }
-        // Quiz Feature Part 3
-        private void InitializeQuiz()
-        {
-            quizQuestions.Clear();
-            currentQuestionIndex = 0;
-            quizScore = 0;
 
-            quizQuestions.Add(new QuizQuestion
-            {
-                Question = "What does 2FA stand for?",
-                Options = new[] { "a) Two-Factor Authentication", "b) Fast Access", "c) File Authorization" },
-                CorrectAnswer = 'a'
-            });
-
-            quizQuestions.Add(new QuizQuestion
-            {
-                Question = "Which of these is a strong password?",
-                Options = new[] { "a) password123", "b) 12345678", "c) T9@kLp$8" },
-                CorrectAnswer = 'c'
-            });
-
-            quizQuestions.Add(new QuizQuestion
-            {
-                Question = "What should you check before clicking a link in an email?",
-                Options = new[] { "a) The color of the email", "b) The sender's address", "c) Font style" },
-                CorrectAnswer = 'b'
-            });
-            quizQuestions.Add(new QuizQuestion
-            {
-                Question = "What is phishing?",
-                Options = new[] { "a) A type of fishing", "b) A cyber attack to steal information", "c) A social media trend" },
-                CorrectAnswer = 'b'
-            });
-            quizQuestions.Add(new QuizQuestion
-            {
-                Question = "You should never share your password with anyone.",
-                Options = new[] { "a) True", "b) False" },
-                CorrectAnswer = 'a'
-            });
-            quizQuestions.Add(new QuizQuestion
-            {
-                Question = "You should change your password immediately if you suspect a data breach.",
-                Options = new[] { "a) True", "b) False" },
-                CorrectAnswer = 'a'
-            });
-
-            quizQuestions.Add(new QuizQuestion
-            {
-                Question = "Public Wi-Fi is always safe if it doesn't require a password.",
-                Options = new[] { "a) True", "b) False" },
-                CorrectAnswer = 'b'
-            });
-
-            quizQuestions.Add(new QuizQuestion
-            {
-                Question = "Antivirus software guarantees 100% protection from all threats.",
-                Options = new[] { "a) True", "b) False" },
-                CorrectAnswer = 'b'
-            });
-            quizQuestions.Add(new QuizQuestion
-            {
-                Question = "What is the purpose of a firewall?",
-                Options = new[] { "a) To block unwanted traffic", "b) To speed up your internet", "c) To store files" },
-                CorrectAnswer = 'a'
-            });
-            quizQuestions.Add(new QuizQuestion
-            {
-                Question = "Public Wi-Fi is always safe if it doesn't require a password.",
-                Options = new[] { "a) True", "b) False" },
-                CorrectAnswer = 'b'
-            });
-            quizQuestions.Add(new QuizQuestion
-            {
-                Question = "Antivirus software guarantees 100% protection from all threats.",
-                Options = new[] { "a) True", "b) False" },
-                CorrectAnswer = 'b'
-            });
-            quizQuestions.Add(new QuizQuestion
-            {
-                Question = "Which of the following is the most secure password?",
-                Options = new[] {
-                    "a) johndoe123",
-                    "b) 12345678",
-                    "c) P@55w0rd!",
-                    "d) MyDog'sName"
-                                    },
-                CorrectAnswer = 'c'
-            });
-            quizQuestions.Add(new QuizQuestion
-            {
-                Question = "What is the purpose of a VPN?",
-                Options = new[] {
-                    "a) Speed up your internet",
-                    "b) Encrypt your internet connection",
-                    "c) Improve your computer's performance",
-                    "d) Block pop-up ads"
-                                            },
-                CorrectAnswer = 'b'
-            });
-            quizQuestions.Add(new QuizQuestion
-            {
-                Question = "Which type of attack tricks users into revealing personal information?",
-                Options = new[] {
-                     "a) Phishing",
-                     "b) Brute-force attack",
-                     "c) DDoS attack",
-                     "d) Spoofing"
-                                    },
-                CorrectAnswer = 'a'
-            });
-
-
-            quizActive = true;
-        }
-
-        // Sentiment Detection Method Part 2
         private string DetectSentiment(string input)
         {
             var worriedWords = new[] { "worried", "anxious", "concerned", "uneasy", "nervous" };

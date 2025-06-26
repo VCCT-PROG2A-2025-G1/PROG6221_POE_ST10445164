@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Chatbot_GUI_POE
 {
-    class CyberTask
+    public class CyberTask
     {
         public string Title { get; set; }
         public string Description { get; set; }
