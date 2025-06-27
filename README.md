@@ -4,6 +4,7 @@ Student Info
 Student Name: Samuel Sossen
 Student Number: ST10445164
 Youtube Video Link: https://youtu.be/4Np2esrpciE 
+
 Project Overview
 This WPF-based chatbot application serves as a Cybersecurity Awareness Assistant designed to help South African citizens learn about online safety. It simulates natural conversations, allows users to manage cybersecurity tasks, and includes an interactive quiz game.
 
