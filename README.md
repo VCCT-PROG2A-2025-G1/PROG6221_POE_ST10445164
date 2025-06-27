@@ -1,60 +1,53 @@
+Programming 2A (PROG6221) – Part 3 Portfolio of Evidence
 
-This is **Part 2** of the PROG6221 Programming 2A Portfolio of Evidence. CyberBot is a console-based chatbot designed to educate South African users about cybersecurity in an engaging, interactive way. In this part, the chatbot evolves into a more natural, intelligent assistant through enhanced keyword recognition, memory, sentiment detection, and conversational logic.
-Video Link: https://youtu.be/HsLuYI9lZi4
+Student Info
+Student Name: Samuel Sossen
+Student Number: ST10445164
+Youtube Video Link: https://youtu.be/4Np2esrpciE 
+Project Overview
+This WPF-based chatbot application serves as a Cybersecurity Awareness Assistant designed to help South African citizens learn about online safety. It simulates natural conversations, allows users to manage cybersecurity tasks, and includes an interactive quiz game.
 
----
+This project demonstrates my knowledge of C# programming, XAML-based GUI design, natural language processing simulation, and real-world software design principles.
 
-## 📌 Objective
+Features:
 
-To extend the functionality of the Part 1 chatbot by:
-- Recognising cybersecurity keywords
-- Responding with varied, dynamic content
-- Detecting user sentiment
-- Remembering user preferences
-- Creating a smooth, flowing chat experience
+Chatbot Core
+Recognizes keywords and user intent using basic NLP.
+Responds to user input with educational cybersecurity advice.
+Supports personalized responses using stored user data.
 
----
+NLP & Sentiment Detection
+Detects phrases like “remind me to” or “add a task to” using keyword analysis and regular expressions.
+Responds with empathy based on detected moods (e.g., worried, frustrated, curious).
 
-## 🛠️ Features Added in Part 2
+Task Assistant (GUI)
+Users can create cybersecurity tasks (e.g., “Enable 2FA”) via chat.
+Supports reminders with future dates.
+Tasks can be marked as complete or deleted.
+Dynamic task list displays titles, descriptions, and reminders.
 
-### 🧠 Keyword Recognition
-- The chatbot detects and responds to topics like:
-  - **Password safety**
-  - **Phishing and scams**
-  - **Privacy risks**
-- Uses dictionaries and lists to match keywords to appropriate cybersecurity tips.
+Activity Log (GUI)
+Stores and displays user actions (e.g., tasks added, quiz started).
+Users can ask: show activity log or what have you done? to view recent actions.
 
-### 🔁 Randomized Responses
-- Responses to key cybersecurity questions are randomly selected from a list for variety.
-- Example: Phishing tips vary with each conversation to keep interactions fresh.
+Cybersecurity Quiz (Mini-Game)
+Interactive quiz with 10+ questions on password safety, phishing, and more.
+Multiple choice & true/false format.
+Instant feedback and short explanation for each answer.
+Final score summary is shown and stored.
 
-### 💬 Memory and Recall
-- Remembers:
-  - The user's name
-  - Topics the user is interested in (e.g., "I'm interested in privacy.")
-- Uses memory to personalize future responses:
-  - "As someone interested in privacy, make sure to review your account settings."
+Tech Stack
+C# (Logic & Classes)
+WPF & XAML (GUI)
+.NET Framework
+GitHub + GitHub Actions (CI)
 
-### ❤️ Sentiment Detection
-- Detects and reacts to emotional tones in user input such as:
-  - **"Worried"**, **"anxious"** → Reassures the user.
-  - **"Frustrated"**, **"upset"** → Offers encouragement.
-  - **"Curious"**, **"interested"** → Promotes learning and exploration.
-- Responds by extracting and highlighting only the emotional keyword, not the full user input.
+The Projects Alignment
+This application was developed as the final deliverable for Part 3 of the PROG6221 Portfolio of Evidence, which required:
 
-### 🔄 Smooth Conversation Flow
-- Maintains context across multiple questions.
-- Handles follow-ups like:
-  - "Tell me more"
-  - "Can you explain"
-  - Without losing the previous topic.
-
-### 🧰 Error Handling & Validation
-- Gracefully handles unrecognized inputs and prompts the user to rephrase.
-- Prevents empty or invalid commands from causing crashes.
-
-### 🧼 Code Structure & Optimisation
-- Clean, modular design using:
-  - `Dictionary<string, List<string>>` for keyword-to-response mapping
-  - `List<string>` for remembered topics
-  - `switch` cases with `when` conditions and methods for reusable sentiment logic
+Full GUI (WPF)
+Task assistant with reminders
+Cybersecurity quiz game with feedback
+Basic NLP simulation
+Activity log with GUI access
+Seamless integration of Parts 1, 2, and 3
