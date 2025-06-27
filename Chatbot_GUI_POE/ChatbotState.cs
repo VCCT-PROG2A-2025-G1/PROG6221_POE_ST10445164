@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Samuel Sossen
+// ST10445164
+// Group 1
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,7 +20,9 @@ namespace Chatbot_GUI_POE
         public static List<string> ActivityLog { get; set; } = new List<string>();
 
     }
-
+    //----------------------------------------------------------------------------------
+    // NLP Processor 
+    //----------------------------------------------------------------------------------
     public enum UserIntent
     {
         None,
@@ -26,7 +32,9 @@ namespace Chatbot_GUI_POE
         GetSummary,
         Unknown
     }
-
+    //----------------------------------------------------------------------------------
+    // NLP Processor for detecting user intent and extracting descriptions
+    //----------------------------------------------------------------------------------
     public class NLPProcessor
     {
         public UserIntent DetectIntent(string userInput)
@@ -47,7 +55,9 @@ namespace Chatbot_GUI_POE
 
             return UserIntent.Unknown;
         }
-
+        //----------------------------------------------------------------------------------
+        // Extracts the description from user input based on detected intent
+        //----------------------------------------------------------------------------------
         public string ExtractDescription(string userInput, UserIntent intent)
         {
             string input = userInput.ToLower();
@@ -70,11 +80,11 @@ namespace Chatbot_GUI_POE
                     break;
             }
 
-            return userInput; // fallback
+            return userInput; 
         }
 
     }
 
 
 }
-
+//-------------------------------------------------------------------------END OF FILE -------------------------------------------------------------------------

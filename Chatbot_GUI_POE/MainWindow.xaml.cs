@@ -1,4 +1,12 @@
-﻿using System;
+﻿// Samuel Sossen
+// ST10445164
+// Group 1
+
+// Reference:
+// https://copilot.microsoft.com/chats/7bpPFQBmHtPLdFNcEuYrd
+// https://theolivenbaum.medium.com/nlp-in-c-made-easy-with-spacy-catalyst-acc93e005f3d
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,13 +26,17 @@ namespace Chatbot_GUI_POE
         private NLPProcessor nlpProcessor = new NLPProcessor();
         private CyberTask lastCreatedTask = null;
         private string username = "User";
-
+        // ----------------------------------------------------------------------------------
+        // MainWindow constructor initializes the chatbot and sets up keyword responses
+        // ----------------------------------------------------------------------------------
         public MainWindow()
         {
             InitializeComponent();
             InitializeBot();
         }
-
+        // ----------------------------------------------------------------------------------
+        // Initializes the bot with predefined keyword responses
+        // ----------------------------------------------------------------------------------
         private void InitializeBot()
         {
             keywordResponses = new Dictionary<string, List<string>>
@@ -49,7 +61,9 @@ namespace Chatbot_GUI_POE
                 }
             };
         }
-
+        // --------------------------------------------------------------------------------------------------------------------------
+        // This method is for the Send button click in this it processes the user input, and will output anything the user inputs.
+        // --------------------------------------------------------------------------------------------------------------------------
         private void Send_Click(object sender, RoutedEventArgs e)
         {
             string userInput = UserInput.Text.Trim();
@@ -57,12 +71,20 @@ namespace Chatbot_GUI_POE
             if (string.IsNullOrEmpty(userInput))
                 return;
 
+            // Exits the Program 
+            if (userInput.ToLower() == "exit")
+            {
+                MessageBox.Show("Goodbye!");
+                Application.Current.Shutdown();
+                return;
+            }
+
             AppendToChat($"You: {userInput}");
             UserInput.Clear();
 
             string lowerInput = userInput.ToLower();
 
-            // --- Activity log command detection ---
+            // Activity log 
             if (lowerInput.Contains("show activity log")
                 || lowerInput.Contains("what have you done")
                 || lowerInput.Contains("recent actions"))
@@ -75,7 +97,6 @@ namespace Chatbot_GUI_POE
                 else
                 {
                     int showCount = Math.Min(10, total);
-                    // Workaround for no TakeLast in older .NET:
                     var logEntries = ChatbotState.ActivityLog.Skip(total - showCount).ToList();
 
                     StringBuilder sb = new StringBuilder("Here’s a summary of recent actions:\n");
@@ -84,10 +105,10 @@ namespace Chatbot_GUI_POE
 
                     AppendToChat("Bot: " + sb.ToString());
                 }
-                return;  // Early exit after showing log
+                return; 
             }
 
-            // --- Reminder follow-up (e.g., "remind me in 3 days") ---
+            // For setting reminders
             if (lastCreatedTask != null && lowerInput.Contains("remind me in"))
             {
                 var parts = lowerInput.Split(new[] { "remind me in" }, StringSplitOptions.None);
@@ -106,12 +127,13 @@ namespace Chatbot_GUI_POE
                 }
             }
 
-            // --- NLP Intent detection ---
+            // NLP Intent detection 
             UserIntent intent = nlpProcessor.DetectIntent(userInput);
             string response = "";
 
             switch (intent)
             {
+                // If the user wants to set a reminder
                 case UserIntent.AddReminder:
                     {
                         string desc = nlpProcessor.ExtractDescription(userInput, intent);
@@ -120,7 +142,7 @@ namespace Chatbot_GUI_POE
                         var newTask = new CyberTask
                         {
                             Title = desc,
-                            Description = GenerateDescriptionFromTitle(desc),
+                            Description = KeywordDetection(desc),
                             ReminderDate = reminderDate
                         };
 
@@ -132,6 +154,7 @@ namespace Chatbot_GUI_POE
                         break;
                     }
 
+                // If the user wants to add a task
                 case UserIntent.AddTask:
                     {
                         string desc = nlpProcessor.ExtractDescription(userInput, intent);
@@ -139,7 +162,7 @@ namespace Chatbot_GUI_POE
                         var newTask = new CyberTask
                         {
                             Title = desc,
-                            Description = GenerateDescriptionFromTitle(desc),
+                            Description = KeywordDetection(desc),
                             ReminderDate = null
                         };
 
@@ -151,6 +174,7 @@ namespace Chatbot_GUI_POE
                         break;
                     }
 
+                // If the user wants a summary of their recent actions
                 case UserIntent.GetSummary:
                     {
                         if (ChatbotState.ActivityLog.Count == 0)
@@ -173,6 +197,7 @@ namespace Chatbot_GUI_POE
                         break;
                     }
 
+                // If the user wants to start a quiz
                 case UserIntent.StartQuiz:
                     {
                         QuizWindow quizWindow = new QuizWindow();
@@ -191,7 +216,6 @@ namespace Chatbot_GUI_POE
                         }
                         break;
                     }
-
                 default:
                     {
                         response = GetBotResponse(userInput.ToLower());
@@ -201,8 +225,10 @@ namespace Chatbot_GUI_POE
 
             AppendToChat($"Bot: {response}");
         }
-
-        private string GenerateDescriptionFromTitle(string title)
+        // ----------------------------------------------------------------------------------
+        // This method checks the title for specific keywords and returns a relevant description.
+        // ----------------------------------------------------------------------------------
+        private string KeywordDetection(string title)
         {
             if (title.ToLower().Contains("privacy"))
                 return "Review your account privacy settings to ensure your data is protected.";
@@ -213,15 +239,18 @@ namespace Chatbot_GUI_POE
             if (title.ToLower().Contains("phishing"))
                 return "Learn how to detect and avoid phishing scams.";
 
-            // Fallback description
             return $"This task is to {title.ToLower()}. Make sure it improves your cybersecurity.";
         }
-
+        // ----------------------------------------------------------------------------------
+        // This method appends the message to the chat output.
+        // ----------------------------------------------------------------------------------
         private void AppendToChat(string message)
         {
             ChatOutput.Text += message + Environment.NewLine;
         }
-
+        // ----------------------------------------------------------------------------------
+        // This method generates a response from the bot based on user input.
+        // ----------------------------------------------------------------------------------
         private string GetBotResponse(string input)
         {
             // Sentiment Detection
@@ -365,7 +394,9 @@ namespace Chatbot_GUI_POE
             // Default Response
             return "I didn't quite get that. Can you rephrase?";
         }
-
+        // ----------------------------------------------------------------------------------
+        // Sentiment Detection
+        // ----------------------------------------------------------------------------------
         private string DetectSentiment(string input)
         {
             var worriedWords = new[] { "worried", "anxious", "concerned", "uneasy", "nervous" };
@@ -388,3 +419,4 @@ namespace Chatbot_GUI_POE
         }
     }
 }
+// ----------------------------------------------------------------------------------END OF FILE -----------------------------------------------------------------------

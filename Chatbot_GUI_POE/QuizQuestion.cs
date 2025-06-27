@@ -11,5 +11,7 @@ namespace Chatbot_GUI_POE
         public string Question { get; set; }
         public string[] Options { get; set; }
         public char CorrectAnswer { get; set; }
+        public string Explanation { get; set; }
     }
 }
+// ---------------------------------------------------------------END OF FILE --------------------------------------------------------------
